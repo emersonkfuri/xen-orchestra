@@ -616,6 +616,7 @@ const TRANSFORMS = {
       status: obj.status,
 
       $host: link(obj, 'resident_on'),
+      $ref: obj.$ref,
     }
   },
 
