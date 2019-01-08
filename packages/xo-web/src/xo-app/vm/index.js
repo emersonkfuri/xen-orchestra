@@ -2,7 +2,6 @@ import _ from 'intl'
 import BaseComponent from 'base-component'
 import Copiable from 'copiable'
 import Icon from 'icon'
-import Link from 'link'
 import Tooltip from 'tooltip'
 import { NavLink, NavTabs } from 'nav'
 import Page from '../page'
@@ -13,6 +12,7 @@ import { Select, Text } from 'editable'
 import { assign, isEmpty, map, pick } from 'lodash'
 import { editVm, fetchVmStats, isVmRunning, migrateVm } from 'xo'
 import { Container, Row, Col } from 'grid'
+import { Host, Pool } from 'render-xo-item'
 import { connectStore, routes } from 'utils'
 import {
   createGetObject,
@@ -180,6 +180,32 @@ export default class Vm extends BaseComponent {
       <Container>
         <Row>
           <Col mediumSize={6} className='header-title'>
+            <span>
+              <span className='text-muted'>
+                {pool !== undefined && <Pool id={pool.id} link />}
+                {vm.power_state === 'Running' && (
+                  <span>
+                    {container !== undefined && pool !== undefined && (
+                      <span>
+                        {' '}
+                        <Icon icon='next' />{' '}
+                      </span>
+                    )}
+                    {container !== undefined && (
+                      <Select
+                        onChange={this._migrateVm}
+                        options={hosts}
+                        renderer={this._selectOptionRenderer}
+                        useLongClick
+                        value={container}
+                      >
+                        <Host id={container.id} link pool={false} />
+                      </Select>
+                    )}
+                  </span>
+                )}
+              </span>
+            </span>
             <h2>
               <Tooltip content={state}>
                 <Icon icon={`vm-${state}`} />
@@ -189,33 +215,10 @@ export default class Vm extends BaseComponent {
             <Copiable tagName='pre' className='text-muted mb-0'>
               {vm.uuid}
             </Copiable>
-            <span>
-              <Text
-                value={vm.name_description}
-                onChange={this._setNameDescription}
-              />
-              <span className='text-muted'>
-                {vm.power_state === 'Running' && container && (
-                  <span>
-                    <span> - </span>
-                    <Select
-                      onChange={this._migrateVm}
-                      options={hosts}
-                      renderer={this._selectOptionRenderer}
-                      useLongClick
-                      value={container}
-                    >
-                      <Link to={`/${container.type}s/${container.id}`}>
-                        {container.name_label}
-                      </Link>
-                    </Select>
-                  </span>
-                )}{' '}
-                {pool && (
-                  <Link to={`/pools/${pool.id}`}>{pool.name_label}</Link>
-                )}
-              </span>
-            </span>
+            <Text
+              value={vm.name_description}
+              onChange={this._setNameDescription}
+            />
           </Col>
           <Col mediumSize={6} className='text-xs-center'>
             <div>
