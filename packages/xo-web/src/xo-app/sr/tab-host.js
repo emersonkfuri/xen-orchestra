@@ -76,6 +76,10 @@ const HOST_COLUMNS = [
 const HOST_PATHS_COLUMN = {
   name: _('srPaths'),
   itemRenderer: (pbd, hosts) => {
+    if (!pbd.attached) {
+      return _('pbdStatusDisconnected')
+    }
+
     if (!get(() => hosts[pbd.host].multipathing)) {
       return _('hostMultipathingDisabled')
     }

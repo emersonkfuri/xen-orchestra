@@ -768,7 +768,7 @@ const messages = {
   hostMultipathingPaths:
     '{nActives, number} of {nPaths, number} path{nPaths, plural, one {} other {s}} ({ nSessions, number } iSCSI session{nSessions, plural, one {} other {s}})',
   hostMultipathingWarning:
-    'The host{nHosts, plural, one {} other {s}} will lose connection to the SRs. Do you want to continue?',
+    'The host{nHosts, plural, one {} other {s}} will lose the connection to the SRs. Do you want to continue?',
   hostXenServerVersion: 'Version',
   hostStatusEnabled: 'Enabled',
   hostStatusDisabled: 'Disabled',
