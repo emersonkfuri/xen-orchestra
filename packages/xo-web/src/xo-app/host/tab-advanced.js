@@ -1,25 +1,31 @@
 import _ from 'intl'
 import Component from 'base-component'
 import Copiable from 'copiable'
+import decorate from 'apply-decorators'
+import PropTypes from 'prop-types'
 import React from 'react'
-import TabButton from 'tab-button'
 import SelectFiles from 'select-files'
+import StateButton from 'state-button'
+import TabButton from 'tab-button'
 import Upgrade from 'xoa-upgrade'
+import { compareVersions, connectStore, getIscsiPaths } from 'utils'
+import { Container, Row, Col } from 'grid'
+import { createGetObjectsOfType, createSelector } from 'selectors'
+import { forEach, map, noop, isEmpty } from 'lodash'
+import { FormattedRelative, FormattedTime } from 'react-intl'
+import { Sr } from 'render-xo-item'
 import { Text } from 'editable'
 import { Toggle } from 'form'
-import { compareVersions, connectStore } from 'utils'
-import { FormattedRelative, FormattedTime } from 'react-intl'
-import { Container, Row, Col } from 'grid'
-import { forEach, map, noop } from 'lodash'
-import { createGetObjectsOfType, createSelector } from 'selectors'
 import {
-  enableHost,
   detachHost,
   disableHost,
+  disableHostMultipathing,
+  enableHost,
+  enableHostMultipathing,
   forgetHost,
-  setRemoteSyslogHost,
-  restartHost,
   installSupplementalPack,
+  restartHost,
+  setRemoteSyslogHost,
 } from 'xo'
 
 const ALLOW_INSTALL_SUPP_PACK = process.env.XOA_PLAN > 1
@@ -35,6 +41,38 @@ const formatPack = ({ name, author, description, version }, key) => (
 )
 
 const getPackId = ({ author, name }) => `${author}\0${name}`
+
+const MultipathableSrs = decorate([
+  connectStore({
+    pbds: createGetObjectsOfType('PBD').filter((_, { hostId }) => pbd =>
+      pbd.host === hostId && Boolean(pbd.otherConfig.multipathed)
+    ),
+  }),
+  ({ pbds }) =>
+    isEmpty(pbds) ? (
+      _('hostNoIscsiSr')
+    ) : (
+      <Container>
+        {map(pbds, pbd => {
+          const [nActives = 0, nPaths = 0] = getIscsiPaths(pbd)
+          return (
+            <Row key={pbd.id}>
+              <Sr id={pbd.SR} link newTab container={false} />{' '}
+              {_('hostMultipathingPaths', {
+                nActives,
+                nPaths,
+                nSessions: pbd.otherConfig.iscsi_sessions,
+              })}
+            </Row>
+          )
+        })}
+      </Container>
+    ),
+])
+
+MultipathableSrs.propTypes = {
+  hostId: PropTypes.string.isRequired,
+}
 
 @connectStore(() => {
   const getPgpus = createGetObjectsOfType('PGPU')
@@ -182,6 +220,23 @@ export default class extends Component {
                 <tr>
                   <th>{_('hostIscsiName')}</th>
                   <Copiable tagName='td'>{host.iSCSI_name}</Copiable>
+                </tr>
+                <tr>
+                  <th>{_('hostMultipathing')}</th>
+                  <td>
+                    <StateButton
+                      className='mb-1'
+                      disabledHandler={enableHostMultipathing}
+                      disabledLabel={_('hostMultipathingDisabled')}
+                      disabledTooltip={_('hostEnableMultipathingMessage')}
+                      enabledHandler={disableHostMultipathing}
+                      enabledLabel={_('hostMultipathingEnabled')}
+                      enabledTooltip={_('hostDisableMultipathingMessage')}
+                      handlerParam={host}
+                      state={host.multipathing}
+                    />
+                    {host.multipathing && <MultipathableSrs hostId={host.id} />}
+                  </td>
                 </tr>
                 <tr>
                   <th>{_('hostRemoteSyslog')}</th>

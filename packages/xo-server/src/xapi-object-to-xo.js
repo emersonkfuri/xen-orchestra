@@ -173,6 +173,7 @@ const TRANSFORMS = {
           total: 0,
         }
       })(),
+      multipathing: obj.multipathing,
       patches: patches || link(obj, 'patches'),
       powerOnMode: obj.power_on_mode,
       power_state: metrics ? (isRunning ? 'Running' : 'Halted') : 'Unknown',
@@ -476,6 +477,7 @@ const TRANSFORMS = {
       host: link(obj, 'host'),
       SR: link(obj, 'SR'),
       device_config: obj.device_config,
+      otherConfig: obj.other_config,
     }
   },
 

@@ -1,14 +1,17 @@
 import _ from 'intl'
+import decorate from 'apply-decorators'
 import Link from 'link'
 import React from 'react'
 import SortedTable from 'sorted-table'
 import StateButton from 'state-button'
-import { Text } from 'editable'
-import { noop } from 'utils'
 import { confirm } from 'modal'
-import { isEmpty, some } from 'lodash'
 import { Container, Row, Col } from 'grid'
 import { editHost, connectPbd, disconnectPbd, deletePbd, deletePbds } from 'xo'
+import { get } from '@xen-orchestra/defined'
+import { getIscsiPaths, noop } from 'utils'
+import { isEmpty, some } from 'lodash'
+import { provideState, injectState } from 'reaclette'
+import { Text } from 'editable'
 
 const forgetHost = pbd =>
   confirm({
@@ -70,6 +73,23 @@ const HOST_COLUMNS = [
   },
 ]
 
+const HOST_PATHS_COLUMN = {
+  name: _('srPaths'),
+  itemRenderer: (pbd, hosts) => {
+    if (!get(() => hosts[pbd.host].multipathing)) {
+      return _('hostMultipathingDisabled')
+    }
+
+    const [nActives = 0, nPaths = 0] = getIscsiPaths(pbd)
+    return _('hostMultipathingPaths', {
+      nActives,
+      nPaths,
+      nSessions: pbd.otherConfig.iscsi_sessions,
+    })
+  },
+  sortCriteria: (pbd, hosts) => get(() => hosts[pbd.host].multipathing),
+}
+
 const HOST_ACTIONS = [
   {
     disabled: pbds => some(pbds, 'attached'),
@@ -81,21 +101,32 @@ const HOST_ACTIONS = [
   },
 ]
 
-export default ({ hosts, pbds }) => (
-  <Container>
-    <Row>
-      <Col>
-        {!isEmpty(hosts) ? (
-          <SortedTable
-            actions={HOST_ACTIONS}
-            collection={pbds}
-            userData={hosts}
-            columns={HOST_COLUMNS}
-          />
-        ) : (
-          <h4 className='text-xs-center'>{_('noHost')}</h4>
-        )}
-      </Col>
-    </Row>
-  </Container>
-)
+export default decorate([
+  provideState({
+    computed: {
+      columns: (_, { sr }) =>
+        sr.sm_config.multipathable
+          ? [...HOST_COLUMNS, HOST_PATHS_COLUMN]
+          : HOST_COLUMNS,
+    },
+  }),
+  injectState,
+  ({ state, hosts, pbds }) => (
+    <Container>
+      <Row>
+        <Col>
+          {!isEmpty(hosts) ? (
+            <SortedTable
+              actions={HOST_ACTIONS}
+              collection={pbds}
+              columns={state.columns}
+              userData={hosts}
+            />
+          ) : (
+            <h4 className='text-xs-center'>{_('noHost')}</h4>
+          )}
+        </Col>
+      </Row>
+    </Container>
+  ),
+])

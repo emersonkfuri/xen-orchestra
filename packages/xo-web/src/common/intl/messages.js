@@ -650,6 +650,10 @@ const messages = {
   srUnhealthyVdiTitle: 'VDI to coalesce ({total, number})',
   srUnhealthyVdiUuid: 'UUID',
 
+  // ----- SR host tab -----
+
+  srPaths: 'Paths',
+
   // ----- SR stats tab -----
 
   srNoStats: 'No stats',
@@ -753,6 +757,18 @@ const messages = {
   hostStatus: 'Status',
   hostBuildNumber: 'Build number',
   hostIscsiName: 'iSCSI name',
+  hostNoIscsiSr: 'Not connected to a iSCSI SR',
+  hostMultipathing: 'Multipathing',
+  hostMultipathingEnabled: 'Enabled',
+  hostMultipathingDisabled: 'Disabled',
+  hostEnableMultipathingMessage: 'Enable multipathing',
+  hostDisableMultipathingMessage: 'Disable multipathing',
+  hostEnableMultipathingForAllHost: 'Enable all hosts multipathing',
+  hostMultipathingSrs: 'Click to see concerned SRs',
+  hostMultipathingPaths:
+    '{nActives, number} of {nPaths, number} path{nPaths, plural, one {} other {s}} ({ nSessions, number } iSCSI session{nSessions, plural, one {} other {s}})',
+  hostMultipathingWarning:
+    'The host{nHosts, plural, one {} other {s}} will lose connection to the SRs. Do you want to continue?',
   hostXenServerVersion: 'Version',
   hostStatusEnabled: 'Enabled',
   hostStatusDisabled: 'Disabled',
@@ -1940,6 +1956,7 @@ const messages = {
   srAllDisconnected: 'Disconnected',
   srSomeConnected: 'Partially connected',
   srAllConnected: 'Connected',
+  iscsiSrHasInactivePath: 'Has an inactive path',
 
   // ----- XOSAN -----
   xosanTitle: 'XOSAN',

@@ -680,6 +680,34 @@ export const enableHost = host => _call('host.enable', { id: resolveId(host) })
 export const disableHost = host =>
   _call('host.disable', { id: resolveId(host) })
 
+import MultipathingModalBody from './multipathing-modal' // eslint-disable-line import/first
+export const enableHostMultipathing = host => {
+  const id = resolveId(host)
+  return confirm({
+    title: _('hostEnableMultipathingMessage'),
+    body: <MultipathingModalBody hostId={id} />,
+  }).then(() => _call('host.enableMultipathing', { id }), noop)
+}
+
+export const disableHostMultipathing = host => {
+  const id = resolveId(host)
+  return confirm({
+    title: _('hostDisableMultipathingMessage'),
+    body: <MultipathingModalBody hostId={id} />,
+  }).then(() => _call('host.disableMultipathing', { id }), noop)
+}
+
+export const enableAllHostsMultipathing = hosts => {
+  const ids = resolveIds(hosts)
+  return confirm({
+    title: _('hostEnableMultipathingMessage'),
+    body: <MultipathingModalBody hostsIds={ids} />,
+  }).then(
+    () => Promise.all(map(ids, id => _call('host.enableMultipathing', { id }))),
+    noop
+  )
+}
+
 const missingUpdatePluginByHost = { __proto__: null }
 export const getHostMissingPatches = async host => {
   const hostId = resolveId(host)
