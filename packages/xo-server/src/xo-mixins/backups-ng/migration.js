@@ -79,7 +79,7 @@ const methods = {
     },
     schedule: Schedule
   ) => ({
-    compression: compress ? 'native' : undefined,
+    compression: compress ? 'native' : 'undefined',
     mode: 'full',
     remotes: { id: remoteId },
     settings: {
